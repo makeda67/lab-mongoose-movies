@@ -1,12 +1,36 @@
 'use strict';
 
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
 const Celebrity = require('../models/Celebrity');
 
-mongoose.connect('mongodb://localhost/mongoose-movies', {
-  keepAlive: true,
-  useNewUrlParser: true,
-  reconnectTries: Number.MAX_VALUE
+router.get('/new', async (req, res, next) => {
+  try {
+    res.render('celebrities/new');
+  } catch (error) {
+    next(error);
+  }
 });
 
-Celebrity.find(celebrities);
+router.post('/create', async (req, res, next) => {
+  try {
+    const { name, occupation, catchPhrase } = req.body;
+    await Celebrity.create({ name, occupation, catchPhrase });
+    res.redirect('/celebrities');
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:name', async (req, res, next) => {
+  const name = req.params.name;
+  try {
+    const celebritiesDetail = await Celebrity.findOne({ name });
+
+    res.render('celebrities/show', celebritiesDetail);
+  } catch (error) {
+    next(error);
+  }
+});
+
+module.exports = router;
